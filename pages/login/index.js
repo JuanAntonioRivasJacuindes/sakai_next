@@ -7,17 +7,42 @@ import { Password } from "primereact/password";
 import { LayoutContext } from "../../layout/context/layoutcontext";
 import { InputText } from "primereact/inputtext";
 import { classNames } from "primereact/utils";
-import { AuthService } from "../../service/AuthService";
+import validator from "validator";
+
+import  AuthService  from "../../service/AuthService";
 const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [checked, setChecked] = useState(false);
   const { layoutConfig } = useContext(LayoutContext);
-
+  const [email,setEmail]=useState('');
   const router = useRouter();
+  const [inputsDisable, setInputsdisable] = useState(false);
+  const [loginButton, setLoginButton] = useState(false);
+  const authService = new AuthService();
   const containerClassName = classNames(
     "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
     { "p-input-filled": layoutConfig.inputStyle === "filled" }
   );
+  const login = () => {
+    if (validator.isEmail(email)) {
+        setLoginButton(true);
+        setInputsdisable(true);
+        authService.getLogin(email, password).then(function (response) {
+            if (response.data.token) {
+                console.log(response.data.token);
+                localStorage.setItem("AuthToken", response.data.token);
+                window.location.reload();
+            } else {
+                console.log("error al iniciar sesion");
+            }
+
+            setLoginButton(false);
+            setInputsdisable(false);
+        });
+    } else {
+        console.log("esta madre no es un correo");
+    }
+};
 
   return (
     <div className={containerClassName}>
@@ -62,6 +87,7 @@ const LoginPage = () => {
                 Email
               </label>
               <InputText
+              value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 inputid="email1"
                 type="text"
@@ -106,7 +132,7 @@ const LoginPage = () => {
               <Button
                 label="Iniciar Sesiòn"
                 className="w-full p-3 text-xl"
-                onClick={() => router.push("/")}
+                onClick={() => login()}
               ></Button>
             </div>
           </div>
