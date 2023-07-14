@@ -2,15 +2,16 @@ import axios from "axios";
 
 export default class CategoryService {
     constructor() {
-        this.apiUrl = process.env.REACT_APP_API_ENDPOINT + "/categories"; // URL de la API de categorías
+        if (typeof window !== 'undefined' && window.localStorage) {
+            this.apiUrl = process.env.REACT_APP_API_ENDPOINT + "/categories"; // URL de la API de usuarios
+            this.config = {
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8",
+                    Authorization: `Bearer ${localStorage.getItem("AuthToken")}`
+                },
+            };
 
-        this.config = {
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("AuthToken")}`,
-            },
-        };
+        }
     }
 
     async createCategory(name, description) {
