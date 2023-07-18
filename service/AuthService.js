@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const endpoint = process.env.REACT_APP_API_ENDPOINT;
-
+const endpoint = "http://127.0.0.1:8000/api";
+require("dotenv").config();
+console.log(process.env);
 export class AuthService {
   getLogin(email, password) {
     return axios.post(endpoint + "/login", {
