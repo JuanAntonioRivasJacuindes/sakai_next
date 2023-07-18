@@ -13,7 +13,7 @@ export default class AuthService {
     }
   }
   getLogin(email, password) {
-    return axios.post(this.apiUrl + "/login", {
+    return axios.post(endpoint + "/login", {
       email: email,
       password: password,
     });
