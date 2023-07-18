@@ -7,6 +7,9 @@ import { Password } from "primereact/password";
 import { LayoutContext } from "../../layout/context/layoutcontext";
 import { InputText } from "primereact/inputtext";
 import { classNames } from "primereact/utils";
+import validator from "validator";
+
+import AuthService from "../../service/AuthService";
 import { AuthService } from "../../service/AuthService";
 import validator from "validator";
 
@@ -19,11 +22,35 @@ const LoginPage = () => {
   const [loginButton, setLoginButton] = useState(false);
   const [inputsDisable, setInputsdisable] = useState(false);
 
+  const [email, setEmail] = useState("");
   const router = useRouter();
+  const [inputsDisable, setInputsdisable] = useState(false);
+  const [loginButton, setLoginButton] = useState(false);
+  const authService = new AuthService();
   const containerClassName = classNames(
     "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
     { "p-input-filled": layoutConfig.inputStyle === "filled" }
   );
+  const login = () => {
+    if (validator.isEmail(email)) {
+      setLoginButton(true);
+      setInputsdisable(true);
+      authService.getLogin(email, password).then(function (response) {
+        if (response.data.token) {
+          console.log(response.data.token);
+          localStorage.setItem("AuthToken", response.data.token);
+          window.location.reload();
+        } else {
+          console.log("error al iniciar sesion");
+        }
+
+        setLoginButton(false);
+        setInputsdisable(false);
+      });
+    } else {
+      console.log("esta madre no es un correo");
+    }
+  };
 
   useEffect(() => {
     if (localStorage.getItem("AuthToken")) {
@@ -95,6 +122,7 @@ const LoginPage = () => {
                 Email
               </label>
               <InputText
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 inputid="email1"
                 type="text"
