@@ -1,6 +1,6 @@
-import React, { useState, useEffect,useRef } from "react";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
+import { useRouter } from "next/router";
+import React from "react";
+import AppConfig from "../../layout/AppConfig";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
@@ -157,12 +157,10 @@ const UserList = () => {
   const toast = useRef(null);
 
   return (
-    <div>
-      <Toast ref={toast} />
-      {renderDataTable()}
-      {renderUserDialog()}
+    <div className="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+      pagina de users
     </div>
   );
 };
 
-export default UserList;
+export default UsersCrud;

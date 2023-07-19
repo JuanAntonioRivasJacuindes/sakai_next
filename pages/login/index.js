@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import AppConfig from "../../layout/AppConfig";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
@@ -9,41 +9,51 @@ import { InputText } from "primereact/inputtext";
 import { classNames } from "primereact/utils";
 import validator from "validator";
 
-import  AuthService  from "../../service/AuthService";
+import AuthService from "../../service/AuthService";
+
 const LoginPage = () => {
+  const authService = new AuthService();
   const [password, setPassword] = useState("");
   const [checked, setChecked] = useState(false);
   const { layoutConfig } = useContext(LayoutContext);
-  const [email,setEmail]=useState('');
-  const router = useRouter();
-  const [inputsDisable, setInputsdisable] = useState(false);
+  const [email, setEmail] = useState("");
   const [loginButton, setLoginButton] = useState(false);
-  const authService = new AuthService();
+  const [inputsDisable, setInputsdisable] = useState(false);
+
+  const router = useRouter();
+
   const containerClassName = classNames(
     "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
     { "p-input-filled": layoutConfig.inputStyle === "filled" }
   );
+
+  useEffect(() => {
+    if (localStorage.getItem("AuthToken")) {
+      router.push("/");
+    } else {
+      console.log(localStorage);
+    }
+  }, []);
   const login = () => {
     if (validator.isEmail(email)) {
-        setLoginButton(true);
-        setInputsdisable(true);
-        authService.getLogin(email, password).then(function (response) {
-            if (response.data.token) {
-                console.log(response.data.token);
-                localStorage.setItem("AuthToken", response.data.token);
-                window.location.reload();
-            } else {
-                console.log("error al iniciar sesion");
-            }
+      setLoginButton(true);
+      setInputsdisable(true);
+      authService.getLogin(email, password).then(function (response) {
+        if (response.data.token) {
+          console.log(response.data.token);
+          localStorage.setItem("AuthToken", response.data.token);
+          window.location.reload();
+        } else {
+          console.log("error al iniciar sesion");
+        }
 
-            setLoginButton(false);
-            setInputsdisable(false);
-        });
+        setLoginButton(false);
+        setInputsdisable(false);
+      });
     } else {
-        console.log("esta madre no es un correo");
+      console.log("error de validacion");
     }
-};
-
+  };
   return (
     <div className={containerClassName}>
       <div className="flex flex-column align-items-center justify-content-center">
@@ -87,7 +97,7 @@ const LoginPage = () => {
                 Email
               </label>
               <InputText
-              value={email}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 inputid="email1"
                 type="text"
@@ -133,6 +143,7 @@ const LoginPage = () => {
                 label="Iniciar Sesiòn"
                 className="w-full p-3 text-xl"
                 onClick={() => login()}
+                loading={loginButton}
               ></Button>
             </div>
           </div>
