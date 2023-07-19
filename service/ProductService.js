@@ -1,31 +1,29 @@
-import axios from "axios";
-export default class UserService {
+export default class ProductService {
     constructor() {
         if (typeof window !== 'undefined' && window.localStorage) {
-            this.apiUrl = process.env.NEXT_PUBLIC_API_ENDPOINT + "/users"; // URL de la API de usuarios
+            this.apiUrl = process.env.NEXT_PUBLIC_API_ENDPOINT + "/products"; // URL de la API de productos
             this.config = {
                 headers: {
                     "Content-Type": "application/json;charset=UTF-8",
                     Authorization: `Bearer ${localStorage.getItem("AuthToken")}`
                 },
             };
-
         }
-
     }
-    async createUser(name, email, password) {
+
+    async createProduct(name, price) {
         try {
-            const response = await axios.post(this.apiUrl, { name, email, password }, this.config);
+            const response = await axios.post(this.apiUrl, { name, price }, this.config);
             return response.data;
         } catch (error) {
             console.error(error);
             return null;
         }
     }
-    async getAllUsers() {
+
+    async getAllProducts() {
         try {
             const response = await axios.get(this.apiUrl, this.config);
-          
             return response.data;
         } catch (error) {
             console.error(error);
@@ -33,7 +31,7 @@ export default class UserService {
         }
     }
 
-    async getUserById(id) {
+    async getProductById(id) {
         try {
             const response = await axios.get(`${this.apiUrl}/${id}`, this.config);
             return response.data;
@@ -43,9 +41,9 @@ export default class UserService {
         }
     }
 
-    async updateUserById(id, name, email, password) {
+    async updateProductById(id, name, price) {
         try {
-            const response = await axios.put(`${this.apiUrl}/${id}`, { name, email, password }, this.config);
+            const response = await axios.put(`${this.apiUrl}/${id}`, { name, price }, this.config);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -53,7 +51,7 @@ export default class UserService {
         }
     }
 
-    async deleteUserById(id) {
+    async deleteProductById(id) {
         try {
             const response = await axios.delete(`${this.apiUrl}/${id}`, this.config);
             return response.data;

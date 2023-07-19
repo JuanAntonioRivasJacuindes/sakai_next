@@ -3,14 +3,13 @@ import axios from "axios";
 export default class CategoryService {
     constructor() {
         if (typeof window !== 'undefined' && window.localStorage) {
-            this.apiUrl = process.env.REACT_APP_API_ENDPOINT + "/categories"; // URL de la API de usuarios
+            this.apiUrl = process.env.NEXT_PUBLIC_API_ENDPOINT + "/categories"; // URL de la API de productos
             this.config = {
                 headers: {
                     "Content-Type": "application/json;charset=UTF-8",
                     Authorization: `Bearer ${localStorage.getItem("AuthToken")}`
                 },
             };
-
         }
     }
 

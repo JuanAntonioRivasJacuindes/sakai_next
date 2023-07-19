@@ -26,6 +26,7 @@ const UserList = () => {
   const loadUsers = async () => {
     try {
       const userList = await userService.getAllUsers();
+      
       setUsers(userList);
     } catch (error) {
       console.error(error);
@@ -37,17 +38,17 @@ const UserList = () => {
     try {
       if (selectedUser) {
         await userService.updateUserById(selectedUser.id, name, email, password);
-        showToast("success", "User updated successfully");
+        showToast("success", "Usuario Actualizado");
       } else {
         await userService.createUser(name, email, password);
-        showToast("success", "User created successfully");
+        showToast("success", "Usuario Creado");
       }
       setLoading(false);
       hideDialog();
       loadUsers();
     } catch (error) {
       console.error(error);
-      showToast("error", "An error occurred");
+      showToast("error", "Ocurrió un error");
       setLoading(false);
     }
   };
@@ -56,18 +57,18 @@ const UserList = () => {
     setLoading(true);
     try {
       await userService.deleteUserById(userId);
-      showToast("success", "User deleted successfully");
+      showToast("success", "Usuario Eliminado");
       setLoading(false);
       loadUsers();
     } catch (error) {
       console.error(error);
-      showToast("error", "An error occurred");
+      showToast("error", "Ocurrió un error");
       setLoading(false);
     }
   };
 
   const showToast = (severity, summary) => {
-    toast.current.show({ severity: 'info', summary: 'Info', detail: 'Message Content' });
+    toast.current.show({ severity: severity, summary: summary });
   };
 
   const showDialog = (user) => {
@@ -89,18 +90,18 @@ const UserList = () => {
   const renderHeader = () => {
     return (
       <div className="p-d-flex p-ai-center">
-        <h2 className="p-mr-2">User List</h2>
-        <Button label="Add User" icon="pi pi-plus" onClick={() => showDialog(null)} />
+        <h2 className="p-mr-2">Lista de Usuarios</h2>
+        <Button label="Crear Usuario" icon="pi pi-plus" onClick={() => showDialog(null)} />
       </div>
     );
   };
 
   const renderUserDialog = () => {
     return (
-      <Dialog visible={userDialogVisible} onHide={hideDialog} header={selectedUser ? "Edit User" : "Add User"} modal className="p-fluid" footer={renderUserDialogFooter()}>
+      <Dialog visible={userDialogVisible} onHide={hideDialog} header={selectedUser ? "Editar Usuario" : "Crear Usuario"} modal className="p-fluid" footer={renderUserDialogFooter()}>
         <div className="p-field">
 
-          <label htmlFor="name">Name</label>
+          <label htmlFor="name">Nombre</label>
           <InputText id="name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="p-field">
@@ -108,7 +109,7 @@ const UserList = () => {
           <InputText id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="p-field">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Contraseña</label>
           <InputText id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
       </Dialog>
@@ -118,8 +119,8 @@ const UserList = () => {
   const renderUserDialogFooter = () => {
     return (
       <div>
-        <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} disabled={loading} />
-        <Button label={selectedUser ? "Update" : "Save"} icon="pi pi-check" onClick={saveUser} autoFocus disabled={loading} />
+        <Button label="Cancelar" icon="pi pi-times" className="p-button-text" onClick={hideDialog} disabled={loading} />
+        <Button label={selectedUser ? "Actualizar" : "Guardar"} icon="pi pi-check" onClick={saveUser} autoFocus disabled={loading} />
       </div>
     );
   };
@@ -132,12 +133,22 @@ const UserList = () => {
       </div>
     );
   };
+  const imageBodyTemplate = (rowData) => {
+ 
+    return <img src={rowData.profile_photo_url} alt="Foto de perfil" className="w-4rem shadow-2 border-round" />;
+};
+  const createdBodyTemplate = (rowData) => {
+   
+    return new Date(rowData.created_at).toLocaleDateString()
+};
 
   const renderDataTable = () => {
     return (
       <DataTable value={users} header={renderHeader()}>
-        <Column field="name" header="Name" />
+        <Column header="Foto" body={imageBodyTemplate}/>
+        <Column field="name" header="Nombre" />
         <Column field="email" header="Email" />
+        <Column header="Fecha de Creación" body={createdBodyTemplate} />
         <Column body={renderActionButtons} />
       </DataTable>
     );
