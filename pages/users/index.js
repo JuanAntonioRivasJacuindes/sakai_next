@@ -1,166 +1,129 @@
-import { useRouter } from "next/router";
-import React from "react";
-import AppConfig from "../../layout/AppConfig";
-import { Button } from "primereact/button";
+import React, { useState, useEffect } from "react";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
+import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { Toast } from "primereact/toast";
-import UserService from "../../service/UserService";
+import { Image } from "primereact/image";
+import UserService from "../../service/UserService"
 
-const UserList = () => {
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userDialogVisible, setUserDialogVisible] = useState(false);
-  const [name, setName] = useState("");
+const UserCrudPage = () => {
+  const [usuarios, setUsuarios] = useState([]);
+  const [mostrarDialogo, setMostrarDialogo] = useState(false);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const userService = new UserService();
-  if (typeof window !== 'undefined') {
-    
-  }
+  const [fotoPerfil, setFotoPerfil] = useState("");
+
   useEffect(() => {
-    loadUsers();
+    obtenerUsuarios();
   }, []);
 
-  const loadUsers = async () => {
-    try {
-      const userList = await userService.getAllUsers();
-      
-      setUsers(userList);
-    } catch (error) {
-      console.error(error);
+  const obtenerUsuarios = async () => {
+    const servicioUsuarios = new UserService();
+    const datos = await servicioUsuarios.getAllUsers();
+    setUsuarios(datos);
+  };
+
+  const guardarUsuario = async () => {
+    const servicioUsuarios = new UserService();
+    if (usuarioSeleccionado) {
+      await servicioUsuarios.updateUserById(usuarioSeleccionado.id, nombre, email, password, fotoPerfil);
+    } else {
+      await servicioUsuarios.createUser(nombre, email, password, fotoPerfil);
     }
+    setMostrarDialogo(false);
+    obtenerUsuarios();
   };
 
-  const saveUser = async () => {
-    setLoading(true);
-    try {
-      if (selectedUser) {
-        await userService.updateUserById(selectedUser.id, name, email, password);
-        showToast("success", "Usuario Actualizado");
-      } else {
-        await userService.createUser(name, email, password);
-        showToast("success", "Usuario Creado");
-      }
-      setLoading(false);
-      hideDialog();
-      loadUsers();
-    } catch (error) {
-      console.error(error);
-      showToast("error", "Ocurrió un error");
-      setLoading(false);
-    }
+  const eliminarUsuario = async (id) => {
+    const servicioUsuarios = new UserService();
+    await servicioUsuarios.deleteUserById(id);
+    obtenerUsuarios();
   };
 
-  const deleteUser = async (userId) => {
-    setLoading(true);
-    try {
-      await userService.deleteUserById(userId);
-      showToast("success", "Usuario Eliminado");
-      setLoading(false);
-      loadUsers();
-    } catch (error) {
-      console.error(error);
-      showToast("error", "Ocurrió un error");
-      setLoading(false);
-    }
-  };
-
-  const showToast = (severity, summary) => {
-    toast.current.show({ severity: severity, summary: summary });
-  };
-
-  const showDialog = (user) => {
-    setSelectedUser(user);
-    setUserDialogVisible(true);
-    setName(user?.name || "");
-    setEmail(user?.email || "");
-    setPassword(user?.password || "");
-  };
-
-  const hideDialog = () => {
-    setSelectedUser(null);
-    setUserDialogVisible(false);
-    setName("");
-    setEmail("");
+  const editarUsuario = (usuario) => {
+    setUsuarioSeleccionado(usuario);
+    setNombre(usuario.name);
+    setEmail(usuario.email);
+    setFotoPerfil(usuario.profile_photo_url);
     setPassword("");
+    setMostrarDialogo(true);
   };
 
-  const renderHeader = () => {
+  const agregarUsuario = () => {
+    setUsuarioSeleccionado(null);
+    setNombre("");
+    setEmail("");
+    setFotoPerfil("");
+    setPassword("");
+    setMostrarDialogo(true);
+  };
+
+  const encabezado = (
+    <div className="p-d-flex p-ai-center">
+      <h2>Lista de Usuarios</h2>
+      <Button label="Agregar Usuario" icon="pi pi-plus" className="p-ml-auto" onClick={agregarUsuario} />
+    </div>
+  );
+
+  const templateBotones = (rowData) => {
     return (
-      <div className="p-d-flex p-ai-center">
-        <h2 className="p-mr-2">Lista de Usuarios</h2>
-        <Button label="Crear Usuario" icon="pi pi-plus" onClick={() => showDialog(null)} />
-      </div>
+      <React.Fragment>
+        <Button icon="pi pi-pencil" className="p-button-rounded p-button-success p-mr-2" onClick={() => editarUsuario(rowData)} />
+        <Button icon="pi pi-trash" className="p-button-rounded p-button-danger" onClick={() => eliminarUsuario(rowData.id)} />
+      </React.Fragment>
     );
   };
 
-  const renderUserDialog = () => {
+  const templateFotoPerfil = (rowData) => {
     return (
-      <Dialog visible={userDialogVisible} onHide={hideDialog} header={selectedUser ? "Editar Usuario" : "Crear Usuario"} modal className="p-fluid" footer={renderUserDialogFooter()}>
-        <div className="p-field">
-
-          <label htmlFor="name">Nombre</label>
-          <InputText id="name" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div className="p-field">
-          <label htmlFor="email">Email</label>
-          <InputText id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div className="p-field">
-          <label htmlFor="password">Contraseña</label>
-          <InputText id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-      </Dialog>
+      <Image src={rowData.profile_photo_url} alt={rowData.name} style={{ width: "50px", height: "50px", borderRadius: "50%" }} />
     );
   };
-
-  const renderUserDialogFooter = () => {
-    return (
-      <div>
-        <Button label="Cancelar" icon="pi pi-times" className="p-button-text" onClick={hideDialog} disabled={loading} />
-        <Button label={selectedUser ? "Actualizar" : "Guardar"} icon="pi pi-check" onClick={saveUser} autoFocus disabled={loading} />
-      </div>
-    );
-  };
-
-  const renderActionButtons = (rowData) => {
-    return (
-      <div>
-        <Button icon="pi pi-pencil" className="p-button-rounded p-button-success p-mr-2" onClick={() => showDialog(rowData)} disabled={loading} />
-        <Button icon="pi pi-trash" className="p-button-rounded p-button-danger" onClick={() => deleteUser(rowData.id)} disabled={loading} />
-      </div>
-    );
-  };
-  const imageBodyTemplate = (rowData) => {
- 
-    return <img src={rowData.profile_photo_url} alt="Foto de perfil" className="w-4rem shadow-2 border-round" />;
-};
-  const createdBodyTemplate = (rowData) => {
-   
-    return new Date(rowData.created_at).toLocaleDateString()
-};
-
-  const renderDataTable = () => {
-    return (
-      <DataTable value={users} header={renderHeader()}>
-        <Column header="Foto" body={imageBodyTemplate}/>
-        <Column field="name" header="Nombre" />
-        <Column field="email" header="Email" />
-        <Column header="Fecha de Creación" body={createdBodyTemplate} />
-        <Column body={renderActionButtons} />
-      </DataTable>
-    );
-  };
-
-  const toast = useRef(null);
 
   return (
-    <div className="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-      pagina de users
+    <div>
+      <DataTable value={usuarios} header={encabezado}>
+        <Column body={templateFotoPerfil} header="Foto de Perfil"></Column>
+        <Column field="name" header="Nombre"></Column>
+        <Column field="email" header="Email"></Column>
+        <Column body={templateBotones}></Column>
+      </DataTable>
+
+      <Dialog visible={mostrarDialogo} onHide={() => setMostrarDialogo(false)} header={usuarioSeleccionado ? "Editar Usuario" : "Agregar Usuario"}>
+        <div className="p-fluid">
+          <div className="p-field">
+            <label htmlFor="nombre">Nombre</label>
+            <InputText id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+          </div>
+
+          <div className="p-field">
+            <label htmlFor="email">Email</label>
+            <InputText id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+
+          <div className="p-field">
+            <label htmlFor="fotoPerfil">URL de la Foto de Perfil</label>
+            <InputText id="fotoPerfil" value={fotoPerfil} onChange={(e) => setFotoPerfil(e.target.value)} />
+          </div>
+
+          {!usuarioSeleccionado && (
+            <div className="p-field">
+              <label htmlFor="password">Contraseña</label>
+              <InputText id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+          )}
+        </div>
+
+        <div className="p-dialog-footer">
+          <Button label="Cancelar" icon="pi pi-times" onClick={() => setMostrarDialogo(false)} className="p-button-text" />
+          <Button label={usuarioSeleccionado ? "Guardar" : "Agregar"} icon="pi pi-check" onClick={guardarUsuario} autoFocus />
+        </div>
+      </Dialog>
     </div>
   );
 };
 
-export default UsersCrud;
+export default UserCrudPage;

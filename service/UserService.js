@@ -1,11 +1,15 @@
 import axios from "axios";
 export default class UserService {
     constructor() {
-        this.apiUrl = process.env.REACT_APP_API_ENDPOINT + "/users"; // URL de la API de usuarios
-
-        this.config = {
-            headers: { "Content-Type": "application/json;charset=UTF-8", "Access-Control-Allow-Origin": "*", Authorization: `Bearer ${localStorage.getItem("AuthToken")}` },
-        };
+        if (typeof window !== 'undefined' && window.localStorage) {
+            this.apiUrl = process.env.NEXT_PUBLIC_API_ENDPOINT + "/users"; // URL de la API de productos
+            this.config = {
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8",
+                    Authorization: `Bearer ${localStorage.getItem("AuthToken")}`
+                },
+            };
+        }
     }
 
     async createUser(name, email, password) {
