@@ -5,7 +5,9 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Image } from "primereact/image";
+import { Paginator } from "primereact/paginator";
 import UserService from "../../service/UserService"
+
 
 const UserCrudPage = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -15,6 +17,9 @@ const UserCrudPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fotoPerfil, setFotoPerfil] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(5);
 
   useEffect(() => {
     obtenerUsuarios();
@@ -64,7 +69,13 @@ const UserCrudPage = () => {
   const encabezado = (
     <div className="p-d-flex p-ai-center">
       <h2>Lista de Usuarios</h2>
-      <Button label="Agregar Usuario" icon="pi pi-plus" className="p-ml-auto" onClick={agregarUsuario} />
+      <div className="p-mb-3">
+      <Button label="Agregar Usuario" icon="pi pi-plus" className="p-ml-auto m-10" onClick={agregarUsuario} />
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar Usuarios" />
+        </span>
+      </div>
     </div>
   );
 
@@ -83,12 +94,25 @@ const UserCrudPage = () => {
     );
   };
 
+  const buscarUsuario = (usuario) => {
+    return (
+      usuario.name.toLowerCase().includes(busqueda.toLowerCase()) ||
+      usuario.email.toLowerCase().includes(busqueda.toLowerCase())
+    );
+  };
+
+  const onPageChange = (event) => {
+    setFirst(event.first);
+  };
+
   return (
     <div>
-      <DataTable value={usuarios} header={encabezado}>
-        <Column body={templateFotoPerfil} header="Foto de Perfil"></Column>
+    
+
+      <DataTable value={usuarios.filter(buscarUsuario)} header={encabezado} paginator rows={rows} first={first} onPage={onPageChange}>
         <Column field="name" header="Nombre"></Column>
         <Column field="email" header="Email"></Column>
+        <Column body={templateFotoPerfil} header="Foto de Perfil"></Column>
         <Column body={templateBotones}></Column>
       </DataTable>
 
@@ -122,6 +146,7 @@ const UserCrudPage = () => {
           <Button label={usuarioSeleccionado ? "Guardar" : "Agregar"} icon="pi pi-check" onClick={guardarUsuario} autoFocus />
         </div>
       </Dialog>
+
     </div>
   );
 };
