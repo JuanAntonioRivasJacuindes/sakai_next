@@ -9,6 +9,7 @@ import AppTopbar from './AppTopbar';
 import AppConfig from './AppConfig';
 import { LayoutContext } from './context/layoutcontext';
 import PrimeReact from 'primereact/api';
+import BreadCrumbBar from '../components/BreadCrumbBar';
 
 const Layout = (props) => {
     const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
@@ -125,6 +126,7 @@ const Layout = (props) => {
                     <AppSidebar />
                 </div>
                 <div className="layout-main-container">
+                    <BreadCrumbBar></BreadCrumbBar>
                     <div className="layout-main">{props.children}</div>
                     <AppFooter />
                 </div>

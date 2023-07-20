@@ -30,9 +30,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (localStorage.getItem("AuthToken")) {
       router.push("/");
-    } else {
-      console.log(localStorage);
-    }
+    } 
   }, []);
   const login = () => {
     if (validator.isEmail(email)) {

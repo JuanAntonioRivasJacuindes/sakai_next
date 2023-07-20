@@ -18,7 +18,8 @@ const AppMenu = () => {
                 { label: 'Usuarios', icon: 'pi pi-user', to: '/users' },
                 { label: 'Roles', icon: 'pi pi-users', to: '/roles' },
                 { label: 'Ordenes', icon: 'pi pi-users', to: '/orders' },
-                { label: 'Productos', icon: 'pi pi-shopping-cart', to: '/products' }
+                { label: 'Productos', icon: 'pi pi-shopping-cart', to: '/products' },
+                { label: 'Categorias', icon: 'pi pi-folder', to: '/categories' }
             ]
         },
         // {
@@ -178,9 +179,9 @@ const AppMenu = () => {
                     return !item.seperator ? <AppMenuitem item={item} root={true} index={i} key={item.label} /> : <li className="menu-separator"></li>;
                 })}
 
-                <Link href="https://blocks.primereact.org" target="_blank" style={{ cursor: 'pointer' }}>
+                {/* <Link href="https://blocks.primereact.org" target="_blank" style={{ cursor: 'pointer' }}>
                     <img alt="Prime Blocks" className="w-full mt-3" src={`/layout/images/banner-primeblocks${layoutConfig.colorScheme === 'light' ? '' : '-dark'}.png`} />
-                </Link>
+                </Link> */}
             </ul>
         </MenuProvider>
     );
